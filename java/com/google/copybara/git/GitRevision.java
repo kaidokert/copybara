@@ -26,6 +26,7 @@ import com.google.common.flogger.FluentLogger;
 import com.google.copybara.exception.RepoException;
 import com.google.copybara.git.GitRepository.GitLogEntry;
 import com.google.copybara.revision.Revision;
+import com.google.copybara.util.CommandOutput;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -44,6 +45,7 @@ public final class GitRevision implements Revision {
   @Nullable private final String reviewReference;
   @Nullable private final String url;
   private String describe;
+  private String revision_number;
   /**
    * Create a git revision from a complete (40 characters) git SHA-1 string.
    *
@@ -179,6 +181,9 @@ public final class GitRevision implements Revision {
     if (label.equals(GitRepository.GIT_DESCRIBE_CHANGE_VERSION)) {
       return populateDescribe();
     }
+    if (label.equals(GitRepository.GIT_SEQUENTIAL_REVISION_NUMBER)) {
+      return populateRevisionNumber();
+    }
     return associatedLabels.get(label);
   }
 
@@ -202,6 +207,23 @@ public final class GitRevision implements Revision {
       }
     }
     return ImmutableList.of(describe);
+  }
+
+  /**
+  * Lazily compute rev number.
+  */
+  private synchronized ImmutableList<String> populateRevisionNumber() {
+    if (revision_number == null) {
+      try {
+        CommandOutput cmdout = repository.simpleCommand("rev-list","--count",sha1);
+        revision_number = cmdout.getStdout();
+      } catch(RepoException e) {
+        logger.atWarning().withCause(e).log(
+            "Cannot get revision number for %s. Using short sha", sha1);
+        revision_number = "";
+      }
+    }
+    return ImmutableList.of(revision_number);
   }
 
   GitRevision withUrl(String url) {
