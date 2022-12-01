@@ -114,7 +114,7 @@ public class AskInputProvider implements InputProvider {
                 return true;
               }
               try {
-                var unused = input.convert(s, resolver);
+                /*var unused = */input.convert(s, resolver);
                 return true;
               } catch (IllegalStateException e) {
                 // Don't ignore internal errors

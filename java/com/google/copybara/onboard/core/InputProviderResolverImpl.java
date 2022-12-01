@@ -52,7 +52,7 @@ public final class InputProviderResolverImpl implements InputProviderResolver {
 
     for (ConfigGenerator generator : generators) {
       // force the generator to initialize its Inputs so tha they are declared in the registry
-      var ignore = generator.consumes();
+      /*var ignore = */ generator.consumes();
       generatorMap.put(generator.name(), generator);
     }
 
