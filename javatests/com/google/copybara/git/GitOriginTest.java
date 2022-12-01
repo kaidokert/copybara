@@ -662,6 +662,9 @@ public class GitOriginTest {
             "0.1-1-g" + changes.get(1).getRevision().asString().substring(0, 7),
             "0.1"));
 
+    assertThat(work.getLabel("GIT_SEQUENTIAL_REVISION_NUMBER"))
+        .isEqualTo("test");
+
     for (Change<GitRevision> change : changes) {
       assertThat(change.getAuthor().getEmail()).isEqualTo("john@name.com");
       assertThat(change.getDateTime()).isAtLeast(beforeTime);
